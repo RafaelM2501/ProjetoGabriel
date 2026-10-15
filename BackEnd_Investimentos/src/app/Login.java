@@ -14,6 +14,14 @@ public class Login {
         return usuario;
     }
 
+    public void setUsuario(String NovoUsuario){
+        this.usuario = NovoUsuario;
+    }
+
+    public void setSenha(String NovaSenha){
+        this.senha = NovaSenha;
+    }
+
     public boolean validarsenha(String senhadigitada) {
         return this.senha.equals(senhadigitada);
     }
@@ -26,9 +34,27 @@ public class Login {
         public void Entrar(Login Usuario, String usuariodigitado, String senhadigitada){
 
             if(Usuario.validarusuario(usuariodigitado) && Usuario.validarsenha(senhadigitada)){
-                System.out.printf("Senha correta!");
+                System.out.printf("Senha e usuario corretos!");
             }else{
-                System.out.printf("Senha incorreta!");
+                System.out.printf("Senha e usuario incorretos!");
+            }
+        }
+        public void ValidarSenha(Login TrocaSenha, String UsuarioAntigo, String NovaSenha){
+            if(TrocaSenha.validarusuario(UsuarioAntigo)){
+                TrocaSenha.setSenha(NovaSenha);
+                System.out.printf("Senha Trocada com Sucesso!");
+            }else{
+                System.out.printf("Falha ao alterar a Senha");
+            }
+        }
+        public void ValidarUsuario(Login TrocaUsuario, String SenhaAntiga, String NovoUsuario){
+            if(TrocaUsuario.validarsenha(SenhaAntiga)){
+                TrocaUsuario.setUsuario(NovoUsuario);
+
+
+                System.out.printf("Usuario Trocado com Sucesso!");
+            }else{
+                System.out.printf("Falha ao alterar o Usuario");
             }
         }
     }
