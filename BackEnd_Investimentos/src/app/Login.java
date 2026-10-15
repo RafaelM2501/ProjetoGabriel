@@ -31,12 +31,13 @@ public class Login {
     }
 }
      class Validacaologin {
-        public void Entrar(Login Usuario, String usuariodigitado, String senhadigitada){
+        public boolean Entrar(Login Usuario, String usuariodigitado, String senhadigitada){
 
             if(Usuario.validarusuario(usuariodigitado) && Usuario.validarsenha(senhadigitada)){
-                System.out.printf("Senha e usuario corretos!");
+                    return true;
             }else{
                 System.out.printf("Senha e usuario incorretos!");
+                    return false;
             }
         }
         public void ValidarSenha(Login TrocaSenha, String UsuarioAntigo, String NovaSenha){
@@ -50,8 +51,6 @@ public class Login {
         public void ValidarUsuario(Login TrocaUsuario, String SenhaAntiga, String NovoUsuario){
             if(TrocaUsuario.validarsenha(SenhaAntiga)){
                 TrocaUsuario.setUsuario(NovoUsuario);
-
-
                 System.out.printf("Usuario Trocado com Sucesso!");
             }else{
                 System.out.printf("Falha ao alterar o Usuario");
