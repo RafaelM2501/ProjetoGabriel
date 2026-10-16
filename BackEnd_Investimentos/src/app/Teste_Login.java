@@ -11,7 +11,7 @@ public class Teste_Login {
         String NovoUsuario;
         int a;
 
-        Login NovoLogin = new Login("Rafaelmozzer@1", "135");
+        Login NovoLogin = new Login("Rafaelmozzer", "1");
 
         Validacaologin validacao = new Validacaologin();
 
@@ -55,8 +55,41 @@ public class Teste_Login {
                         num = teclado.nextInt();
 
                         if( num == 1 ){
-                            Carteira.CompraInvestimento(500);
                         System.out.printf("\nValor Atual: %d\n",Carteira.getCarteira1());
+
+                        }else if( num == 2) {
+                            int voltar = 1;
+
+                            while(voltar != 0){
+
+                                System.out.printf("\n");
+                                System.out.printf("----- Preço das Moedas -------\n");
+                                System.out.printf("Para voltar ao Menu Inicial digite (0)\n");
+                                System.out.printf("Para atualizar o Sistema manualmente digite (1)\n");
+                                System.out.printf("Para uma Consulta Automática digite (2)\n");
+                                voltar = teclado.nextInt();
+
+                                if(voltar == 0){
+                                    System.out.printf("Voltando ao Menu Inicial");
+                                }
+
+                                if(voltar == 1){
+
+                                    Carteira.Acoes();
+                                }
+
+                                if(voltar == 2){
+                                    try {
+
+                                    for(int i = 0; i < 5; i++){
+                                        Carteira.Acoes();
+                                        Thread.sleep(2000);
+                                        }
+                                    }catch (InterruptedException e) {
+                                        System.out.println("Ocorreu um erro na atualização.");
+                                    }
+                                }
+                            }
                         }
                     }while(num != 5);
                 }
