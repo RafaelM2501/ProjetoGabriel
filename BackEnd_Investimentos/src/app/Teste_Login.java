@@ -55,6 +55,7 @@ public class Teste_Login {
                         num = teclado.nextInt();
 
                         if( num == 1 ){
+                            Carteira.CompraInvestimento(500);
                         System.out.printf("\nValor Atual: %d\n",Carteira.getCarteira1());
                         }
                     }while(num != 5);

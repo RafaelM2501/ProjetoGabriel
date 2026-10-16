@@ -2,7 +2,7 @@ package app;
 
 public class Investimentos {
 
-    private int Carteira1 = 0;
+    private int Carteira1 = 500;
 
     public int getCarteira1(){
         return Carteira1;
