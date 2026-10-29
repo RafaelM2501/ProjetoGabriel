@@ -22,7 +22,7 @@ public class Login {
         this.senha = NovaSenha;
     }
 
-    public boolean validarsenha(String senhadigitada) {
+    public boolean validarsenha(String senhadigitada) { //Trocar para letra minuscula
         return this.senha.equals(senhadigitada);
     }
 
@@ -40,7 +40,7 @@ public class Login {
                     return false;
             }
         }
-        public void ValidarSenha(Login TrocaSenha, String UsuarioAntigo, String NovaSenha){
+        public void validarSenha(Login TrocaSenha, String UsuarioAntigo, String NovaSenha){
             if(TrocaSenha.validarusuario(UsuarioAntigo)){
                 TrocaSenha.setSenha(NovaSenha);
                 System.out.printf("Senha Trocada com Sucesso!");
@@ -48,7 +48,7 @@ public class Login {
                 System.out.printf("Falha ao alterar a Senha");
             }
         }
-        public void ValidarUsuario(Login TrocaUsuario, String SenhaAntiga, String NovoUsuario){
+        public void validarUsuario(Login TrocaUsuario, String SenhaAntiga, String NovoUsuario){
             if(TrocaUsuario.validarsenha(SenhaAntiga)){
                 TrocaUsuario.setUsuario(NovoUsuario);
                 System.out.printf("Usuario Trocado com Sucesso!");

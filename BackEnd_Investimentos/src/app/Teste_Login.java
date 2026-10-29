@@ -63,7 +63,6 @@ public class Teste_Login {
                             while(voltar != 0){
 
                                 System.out.printf("\n");
-                                System.out.printf("----- Preço das Moedas -------\n");
                                 System.out.printf("Para voltar ao Menu Inicial digite (0)\n");
                                 System.out.printf("Para atualizar o Sistema manualmente digite (1)\n");
                                 System.out.printf("Para uma Consulta Automática digite (2)\n");
@@ -74,16 +73,16 @@ public class Teste_Login {
                                 }
 
                                 if(voltar == 1){
-
+                                    System.out.printf("----- Preço das Moedas -------\n");
                                     Carteira.Acoes();
                                 }
 
                                 if(voltar == 2){
                                     try {
-
-                                    for(int i = 0; i < 5; i++){
+                                        System.out.printf("----- Preço das Moedas -------\n");
+                                        for(int i = 0; i < 5; i++){
                                         Carteira.Acoes();
-                                        Thread.sleep(2000);
+                                        Thread.sleep(5000);
                                         }
                                     }catch (InterruptedException e) {
                                         System.out.println("Ocorreu um erro na atualização.");
@@ -108,16 +107,16 @@ public class Teste_Login {
                     System.out.printf("Digite a Nova Senha: ");
                     NovaSenha = teclado.nextLine();
 
-                    validacao.ValidarSenha(NovoLogin, UsuarioAntigo, NovaSenha);
+                    validacao.validarSenha(NovoLogin, UsuarioAntigo, NovaSenha);
 
                 } else if (a == 2) {
                     System.out.printf("Digite a Senha Antiga: ");
                     String SenhaAntiga = teclado.nextLine();
 
-                    System.out.printf("Digite o Novo Usuario");
+                    System.out.printf("Digite o Novo Usuario: ");
                     NovoUsuario = teclado.nextLine();
 
-                    validacao.ValidarUsuario(NovoLogin, SenhaAntiga, NovoUsuario);
+                    validacao.validarUsuario(NovoLogin, SenhaAntiga, NovoUsuario);
                 }
             }
         }while (a != 3) ;
