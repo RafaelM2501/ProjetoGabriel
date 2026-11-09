@@ -11,11 +11,15 @@ public class Teste_Login {
         String NovoUsuario;
         int a;
 
+        //Criação e validação dos objetos
+
         Login NovoLogin = new Login("Rafaelmozzer", "1");
 
         Validacaologin validacao = new Validacaologin();
 
         Investimentos Carteira = new Investimentos();
+
+        Pagamentos Conta = new Pagamentos(Carteira.getCarteira1());
 
         Scanner teclado = new Scanner(System.in);
 
@@ -48,8 +52,8 @@ public class Teste_Login {
                         System.out.printf("\n ------ Menu Inicial -------\n");
                         System.out.printf("(1) Para ver o Saldo na Carteira\n");
                         System.out.printf("(2) Para ver ações no mercado\n");
-                        System.out.printf("(3) Para ver o tutorial\n");
-                        System.out.printf("(4) Para Saque ou deposito\n");
+                        System.out.printf("(3)  Para Saque ou deposito\n");
+                        System.out.printf("(4) Compra dos Investimentos\n");
                         System.out.printf("(5) Voltar\n");
 
                         num = teclado.nextInt();
@@ -59,7 +63,6 @@ public class Teste_Login {
 
                         }else if( num == 2) {
                             int voltar = 1;
-
                             while(voltar != 0){
 
                                 System.out.printf("\n");
@@ -88,6 +91,19 @@ public class Teste_Login {
                                         System.out.println("Ocorreu um erro na atualização.");
                                     }
                                 }
+                            }
+                        }else if(num == 3) {
+                            int voltar = 1;
+                            while (voltar != 0) {
+
+                                System.out.printf("(A) - Para Saque:\n");
+                                System.out.printf("(B) - Para Deposito:\n");
+                                String financas = teclado.nextLine();
+                                System.out.printf("\nValor Atual: %d\n",Conta.Conta());
+                                teclado.nextLine();
+
+                                //Adicionar o Saque mais o Deposito
+                                //Retornar o Saque e o Deposito com o novo valor da Carteira.
                             }
                         }
                     }while(num != 5);
