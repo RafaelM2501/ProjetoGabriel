@@ -2,7 +2,7 @@ package app;
 
 import java.util.Scanner;
 
-public class Teste_Login {
+public class Teste_Site {
     public static void main(String[] args) {
 
         String usuario;
