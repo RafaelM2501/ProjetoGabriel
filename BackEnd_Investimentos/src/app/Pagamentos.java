@@ -24,6 +24,7 @@ public class Pagamentos {
     public boolean Saque(int valor) {
         if (valor > 0 && valor <= this.saldo) {
             this.saldo -= valor;
+            // reescrever o .json com o novo saldo da conta do usuário
             System.out.println("Saque de: R$" + valor + "Realizado com Sucesso");
             return true;
         } else {
