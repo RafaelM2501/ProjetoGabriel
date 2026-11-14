@@ -22,7 +22,7 @@ public class Login {
         this.senha = NovaSenha;
     }
 
-    public boolean validarsenha(String senhadigitada) { //Trocar para letra minuscula
+    public boolean validarsenha(String senhadigitada) {
         return this.senha.equals(senhadigitada);
     }
 

@@ -4,11 +4,7 @@ import java.util.Random;
 
 public class Investimentos {
 
-    private int Carteira1 = 500;
-
-    public int getCarteira1(){
-        return Carteira1;
-    }
+    private int Carteira1 = 0;
 
     public void CompraInvestimento(int valor){ //vou mexer nisso ainda
         if(valor > 0){
