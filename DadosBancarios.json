@@ -1,0 +1,67 @@
+{
+  "Usuarios" : [
+    {
+      "id": 1,
+      "usuario":"Rafaelmozzer",
+      "nome": "Rafael",
+      "senha": "1",
+      "saldo": 2000
+    },
+    {
+      "id": 2,
+      "usuario": "Guilherme@1234",
+      "nome": "Guilherme",
+      "senha": "1",
+      "saldo": 200
+    },
+    {
+      "id": 3,
+      "usuario":"LeonelSoares",
+      "nome": "Leonel",
+      "senha": "1234",
+      "saldo": 4000
+    },
+    {
+      "id": 4,
+      "usuario":"jerriAdriano",
+      "nome": "Jerrão",
+      "senha": "F13",
+      "saldo": 4000
+    },
+    {
+      "id": 5,
+      "usuario": "AnaCosta",
+      "nome": "Ana",
+      "senha": "1234",
+      "saldo": 1000
+    },
+    {
+      "id": 6,
+      "usuario": "BrunoLima",
+      "nome": "Bruno",
+      "senha": "1234",
+      "saldo": 1000
+    },
+    {
+      "id": 7,
+      "usuario": "CarlaSouza",
+      "nome": "Carla",
+      "senha": "1234",
+      "saldo": 1000
+    },
+    {
+      "id": 8,
+      "usuario": "DiegoAlves",
+      "nome": "Diego",
+      "senha": "1234",
+      "saldo": 1000
+    },
+    {
+      "id": 9,
+      "usuario": "FernandaRocha",
+      "nome": "Fernanda",
+      "senha": "1234",
+      "saldo": 1000
+    }
+  ]
+}
