@@ -3,18 +3,31 @@ package app;
 import java.util.Random;
 
 public class Investimentos {
-    private double Carteira1 = 0;
 
-    // Opções de investimento: nome, cotação base (R$) e variação máxima por trading (R$)
     private static final String[] OPCOES = {"Dollar", "Libra", "Petrobras (PETR4)", "Vale (VALE3)", "Itaú (ITUB4)"};
-    private static final double[] COTACAO_BASE = {5.70, 7.45, 37.50, 60.20, 36.80};
-    private static final double[] VARIACAO = {0.30, 0.30, 1.90, 3.00, 1.85};
 
-    public static String[] getOpcoes() {
-        return OPCOES.clone();
+    private double[] precos = {5.70, 7.45, 37.50, 60.20, 36.80};
+
+    // Últimos 25 preços de cada ativo (usado no gráfico)
+    public static final int PONTOS = 25;
+    private double[][] historico = new double[OPCOES.length][PONTOS];
+    private int quantidade = 0; // quantos preços já estão no histórico
+
+    // Quanto o usuário tem em cada ativo (sobe e desce junto com o preço)
+    private double[] carteira = new double[OPCOES.length];
+
+    private Random gerador = new Random();
+
+    // Apaga o histórico para o gráfico começar sem barras
+    public void limparHistorico() {
+        quantidade = 0;
     }
 
-    private static int indiceDe(String nome) {
+    public static String[] getOpcoes() {
+        return OPCOES;
+    }
+
+    public static int indiceDe(String nome) {
         for (int i = 0; i < OPCOES.length; i++) {
             if (OPCOES[i].equals(nome)) {
                 return i;
@@ -23,67 +36,58 @@ public class Investimentos {
         return 0;
     }
 
-    public double getCarteira1() {
-        return Carteira1;
-    }
+    // Muda os preços entre -1% e +1%
+    public void atualizarPrecos() {
+        for (int i = 0; i < OPCOES.length; i++) {
+            double variacao = (gerador.nextDouble() * 0.02) - 0.01;
+            precos[i] = precos[i] * (1 + variacao);
+            carteira[i] = carteira[i] * (1 + variacao);
 
-    public void zerarCarteira() {
-        this.Carteira1 = 0;
-    }
-
-    public void setCarteira1(double novoValor) {
-        this.Carteira1 = novoValor;
-    }
-
-    public double CompraInvestimento(double valor, int qtdRatings, int escolherMoeda, String[] moeda) {
-        if (valor > 0) {
-            String moedaEscolhida = moeda[escolherMoeda];
-            System.out.printf("\n--- Investindo em %s ---\n", moedaEscolhida);
-
-            int indice = indiceDe(moedaEscolhida);
-            double cotacaoAnterior = COTACAO_BASE[indice];
-            Random gerador = new Random();
-
-            for (int i = 1; i <= qtdRatings; i++) {
-                double variacao = VARIACAO[indice];
-                double cotacao = COTACAO_BASE[indice] + ((gerador.nextDouble() * 2 * variacao) - variacao);
-
-                double valorAnterior = valor;
-
-                // Valor para seguir a cotação anterior
-                double proporcao = cotacao / cotacaoAnterior;
-                valor = valor * proporcao;
-
-                // Variação exibindo o lucro ou prejuízo em centavos
-                double diferenca = valor - valorAnterior;
-
-                System.out.printf(
-                        " Trading %d | Cotação: %.2f  | Montante:  R$ %.2f | Variação: R$ %+.2f\n",
-                        i, cotacao, valor, diferenca
-                );
+            if (quantidade < PONTOS) {
+                // Ainda tem espaço: coloca o preço novo na próxima posição
+                historico[i][quantidade] = precos[i];
+            } else {
+                // Cheio: anda o histórico uma posição e coloca o preço novo no final
+                for (int j = 0; j < PONTOS - 1; j++) {
+                    historico[i][j] = historico[i][j + 1];
+                }
+                historico[i][PONTOS - 1] = precos[i];
             }
-
-            Carteira1 += valor;
-            return valor;
-        } else {
-            System.out.println("Compra Invalida");
-            return 0;
+        }
+        if (quantidade < PONTOS) {
+            quantidade++;
         }
     }
 
-    public void Acoes() {
-        Random gerador = new Random();
+    public double getPreco(int i) {
+        return precos[i];
+    }
 
-        double Dolar = 5.70 + ((gerador.nextDouble() * 0.1) - 0.05);
-        double Libra = 7.45 + ((gerador.nextDouble() * 0.1) - 0.05);
-        double Petrobras = 37.50 + ((gerador.nextDouble() * 0.6) - 0.3);
-        double Vale = 60.20 + ((gerador.nextDouble() * 1.0) - 0.5);
-        double Itau = 36.80 + ((gerador.nextDouble() * 0.6) - 0.3);
+    // Devolve só os preços que já existem
+    public double[] getHistorico(int i) {
+        return java.util.Arrays.copyOf(historico[i], quantidade);
+    }
 
-        System.out.printf("Dólar (USD): R$ %.2f\n", Dolar);
-        System.out.printf("Libra Esterlina (GBP): R$ %.2f\n", Libra);
-        System.out.printf("Petrobras (PETR4): R$ %.2f\n", Petrobras);
-        System.out.printf("Vale (VALE3): R$ %.2f\n", Vale);
-        System.out.printf("Itaú (ITUB4): R$ %.2f\n", Itau);
+    public double getValorInvestido(int i) {
+        return carteira[i];
+    }
+
+    public double getTotalInvestido() {
+        double total = 0;
+        for (double valor : carteira) {
+            total += valor;
+        }
+        return total;
+    }
+
+    public void investir(int i, double valor) {
+        carteira[i] += valor;
+    }
+
+    // Retira tudo que está no ativo e devolve o valor
+    public double retirar(int i) {
+        double valor = carteira[i];
+        carteira[i] = 0;
+        return valor;
     }
 }

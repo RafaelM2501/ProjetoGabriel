@@ -1,17 +1,27 @@
 package app;
 
 import com.google.gson.Gson;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.*;
+import javafx.util.Duration;
 
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
@@ -20,6 +30,10 @@ import java.nio.file.Path;
 
 
 public class App extends Application {
+
+    // Todas as telas usam o mesmo tamanho (o da tela de login)
+    private static final double LARGURA = 420;
+    private static final double ALTURA = 320;
 
     @Override
     public void start(Stage primaryStage) {
@@ -43,13 +57,13 @@ public class App extends Application {
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(24));
 
-        final Scene cenaLogin = new Scene(root, 420, 320);
+        final Scene cenaLogin = new Scene(root, LARGURA, ALTURA);
 
         Validacaologin validacao = new Validacaologin();
-        Investimentos investimentos = new Investimentos();
 
         btnEntrar.setOnAction(event -> {
-            String usuarioDigitado = txtUsuario.getText().trim();
+            // Ignora os espaços: "Leonel Soares" vira "LeonelSoares"
+            String usuarioDigitado = txtUsuario.getText().replace(" ", "");
             String senhaDigitada = txtSenha.getText();
 
             if (usuarioDigitado.isEmpty() || senhaDigitada.isEmpty()) {
@@ -95,6 +109,8 @@ public class App extends Application {
 
                     double saldoInicial = Double.parseDouble(String.valueOf(usuarioEncontrado.getSaldo()));
                     Pagamentos pagamentos = new Pagamentos(saldoInicial);
+                    // Cada login tem sua própria carteira de investimentos
+                    Investimentos investimentos = new Investimentos();
 
                     Scene cenaPrincipal = criarCenaPrincipal(
                             primaryStage,
@@ -150,19 +166,19 @@ public class App extends Application {
         btnSair.setPrefWidth(180);
 
         Label lblStatusAcao = new Label();
+        lblStatusAcao.setWrapText(true);
 
         VBox painel = new VBox(12,lblMenu, lblBoasVindas, btnCarteira, btnInvestimentos, btnPagamentos, btnSair, lblStatusAcao);
         painel.setAlignment(Pos.CENTER);
         painel.setPadding(new Insets(24));
 
-        final Scene cenaPrincipal = new Scene(painel, 460, 360);
+        final Scene cenaPrincipal = new Scene(painel, LARGURA, ALTURA);
 
-        btnCarteira.setOnAction(e ->
-                lblStatusAcao.setText(
-                        "Carteira de " + usuario.getUsuario()
-                                + " — Saldo: R$ " + String.format("%.2f", pagamentos.Conta())
-                )
-        );
+        btnCarteira.setOnAction(e -> {
+            Scene cenaCarteira = criarCenaCarteira(stage, investimentos, pagamentos, cenaPrincipal);
+            stage.setTitle("Carteira - Projeto Investimentos FX");
+            stage.setScene(cenaCarteira);
+        });
 
         btnInvestimentos.setOnAction(e -> {
             Scene cenaInvestimentos = criarCenaInvestimentos(
@@ -177,11 +193,11 @@ public class App extends Application {
             stage.setScene(cenaInvestimentos);
         });
 
-        btnPagamentos.setOnAction(e ->
-                lblStatusAcao.setText(
-                        "Saldo atual de " + usuario.getUsuario() + ": R$ " + String.format("%.2f", pagamentos.Conta())
-                )
-        );
+        btnPagamentos.setOnAction(e -> {
+            Scene cenaPagamentos = criarCenaPagamentos(stage, usuario, pagamentos, cenaPrincipal);
+            stage.setTitle("Pagamentos - Projeto Investimentos FX");
+            stage.setScene(cenaPagamentos);
+        });
 
         btnSair.setOnAction(e -> {
             stage.setTitle("Login - Projeto Investimentos FX");
@@ -189,6 +205,134 @@ public class App extends Application {
         });
 
         return cenaPrincipal;
+    }
+
+    private Scene criarCenaPagamentos(
+            Stage stage,
+            UsuarioJson usuario,
+            Pagamentos pagamentos,
+            Scene cenaPrincipal
+    ) {
+        Label lblTitulo = new Label("Pagamentos");
+        lblTitulo.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+
+        Button btnVoltar = new Button("Voltar");
+        btnVoltar.setOnAction(e -> {
+            stage.setTitle("Painel - Projeto Investimentos FX");
+            stage.setScene(cenaPrincipal);
+        });
+
+        Region espaco = new Region();
+        HBox.setHgrow(espaco, Priority.ALWAYS);
+        HBox topo = new HBox(10, lblTitulo, espaco, btnVoltar);
+        topo.setAlignment(Pos.CENTER_LEFT);
+
+        Label lblSaldo = new Label(String.format("Saldo: R$ %.2f", pagamentos.Conta()));
+        lblSaldo.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        // Parte de depósito
+        Label lblDepositar = new Label("Depositar");
+        lblDepositar.setStyle("-fx-font-weight: bold;");
+        TextField txtDeposito = new TextField();
+        txtDeposito.setPromptText("Valor (R$)");
+        txtDeposito.setPrefWidth(110);
+        Button btnDepositar = new Button("Depositar");
+        HBox linhaDeposito = new HBox(8, txtDeposito, btnDepositar);
+
+        // Parte de retirada
+        Label lblRetirar = new Label("Retirar");
+        lblRetirar.setStyle("-fx-font-weight: bold;");
+        TextField txtRetirada = new TextField();
+        txtRetirada.setPromptText("Valor (R$)");
+        txtRetirada.setPrefWidth(110);
+        Button btnRetirar = new Button("Retirar");
+        HBox linhaRetirada = new HBox(8, txtRetirada, btnRetirar);
+
+        Label lblMensagem = new Label();
+
+        btnDepositar.setOnAction(e -> {
+            try {
+                double valor = Double.parseDouble(txtDeposito.getText().trim().replace(",", "."));
+                if (pagamentos.Deposito(valor, usuario.getNome())) {
+                    lblMensagem.setText(String.format("Depósito de R$ %.2f feito.", valor));
+                    txtDeposito.clear();
+                } else {
+                    lblMensagem.setText("Digite um valor maior que zero.");
+                }
+            } catch (NumberFormatException ex) {
+                lblMensagem.setText("Digite um número válido.");
+            }
+            lblSaldo.setText(String.format("Saldo: R$ %.2f", pagamentos.Conta()));
+        });
+
+        btnRetirar.setOnAction(e -> {
+            try {
+                double valor = Double.parseDouble(txtRetirada.getText().trim().replace(",", "."));
+                if (pagamentos.Saque(valor)) {
+                    lblMensagem.setText(String.format("Retirada de R$ %.2f feita.", valor));
+                    txtRetirada.clear();
+                } else {
+                    lblMensagem.setText("Valor inválido ou maior que o saldo.");
+                }
+            } catch (NumberFormatException ex) {
+                lblMensagem.setText("Digite um número válido.");
+            }
+            lblSaldo.setText(String.format("Saldo: R$ %.2f", pagamentos.Conta()));
+        });
+
+        VBox layout = new VBox(8, topo, lblSaldo, lblDepositar, linhaDeposito, lblRetirar, linhaRetirada, lblMensagem);
+        layout.setPadding(new Insets(10));
+
+        return new Scene(layout, LARGURA, ALTURA);
+    }
+
+    private Scene criarCenaCarteira(
+            Stage stage,
+            Investimentos investimentos,
+            Pagamentos pagamentos,
+            Scene cenaPrincipal
+    ) {
+        Label lblTitulo = new Label("Carteira");
+        lblTitulo.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+
+        Button btnVoltar = new Button("Voltar");
+        btnVoltar.setOnAction(e -> {
+            stage.setTitle("Painel - Projeto Investimentos FX");
+            stage.setScene(cenaPrincipal);
+        });
+
+        Region espaco = new Region();
+        HBox.setHgrow(espaco, Priority.ALWAYS);
+        HBox topo = new HBox(10, lblTitulo, espaco, btnVoltar);
+        topo.setAlignment(Pos.CENTER_LEFT);
+
+        double saldo = pagamentos.Conta();
+        double investido = investimentos.getTotalInvestido();
+
+        Label lblSaldo = new Label(String.format("Saldo: R$ %.2f", saldo));
+        Label lblInvestido = new Label(String.format("Investido: R$ %.2f", investido));
+        Label lblTotal = new Label(String.format("Total: R$ %.2f", saldo + investido));
+        lblTotal.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        Label lblAtivos = new Label("Seus investimentos:");
+        lblAtivos.setStyle("-fx-font-weight: bold;");
+
+        VBox lista = new VBox(4);
+        String[] opcoes = Investimentos.getOpcoes();
+        for (int i = 0; i < opcoes.length; i++) {
+            double valor = investimentos.getValorInvestido(i);
+            if (valor > 0) {
+                lista.getChildren().add(new Label(String.format("%s: R$ %.2f", opcoes[i], valor)));
+            }
+        }
+        if (lista.getChildren().isEmpty()) {
+            lista.getChildren().add(new Label("Você ainda não tem investimentos."));
+        }
+
+        VBox layout = new VBox(8, topo, lblSaldo, lblInvestido, lblTotal, lblAtivos, lista);
+        layout.setPadding(new Insets(10));
+
+        return new Scene(layout, LARGURA, ALTURA);
     }
 
     private Scene criarCenaInvestimentos(
@@ -200,102 +344,148 @@ public class App extends Application {
             Label lblStatusAcao
     ) {
         Label lblTitulo = new Label("Investimentos");
-        lblTitulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        lblTitulo.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
-        Label lblSaldo = new Label("Saldo disponível: R$ " + String.format("%.2f", pagamentos.Conta()));
-        lblSaldo.setStyle("-fx-font-size: 14px;");
+        Label lblSaldo = new Label();
 
-        ComboBox<String> cbMoeda = new ComboBox<>();
-        cbMoeda.getItems().addAll(Investimentos.getOpcoes());
-        cbMoeda.setPromptText("Escolha o investimento");
-        cbMoeda.setMaxWidth(240);
+        Button btnVoltar = new Button("Voltar");
+
+        Region espaco = new Region();
+        HBox.setHgrow(espaco, Priority.ALWAYS);
+        HBox topo = new HBox(10, lblTitulo, lblSaldo, espaco, btnVoltar);
+        topo.setAlignment(Pos.CENTER_LEFT);
+
+        ComboBox<String> cbAtivo = new ComboBox<>();
+        cbAtivo.getItems().addAll(Investimentos.getOpcoes());
+        cbAtivo.setValue("Dollar");
+
+        Label lblPreco = new Label();
+        lblPreco.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        HBox linhaAtivo = new HBox(10, cbAtivo, lblPreco);
+        linhaAtivo.setAlignment(Pos.CENTER_LEFT);
+
+        // O gráfico começa sem barras toda vez que a tela abre
+        investimentos.limparHistorico();
+
+        // Gráfico de barras com os últimos 25 preços
+        CategoryAxis eixoX = new CategoryAxis();
+        eixoX.setTickLabelsVisible(false);
+        eixoX.setTickMarkVisible(false);
+        NumberAxis eixoY = new NumberAxis();
+        eixoY.setForceZeroInRange(false);
+        eixoY.setMinorTickVisible(false);
+        eixoY.setTickMarkVisible(false);
+        eixoY.setTickLabelsVisible(false);
+        BarChart<String, Number> grafico = new BarChart<>(eixoX, eixoY);
+        grafico.setAnimated(false);
+        grafico.setLegendVisible(false);
+        // Sem linhas de grade, só as barras
+        grafico.setHorizontalGridLinesVisible(false);
+        grafico.setVerticalGridLinesVisible(false);
+        grafico.setAlternativeRowFillVisible(false);
+        grafico.setBarGap(0);
+        grafico.setCategoryGap(7); // espaço entre as barras (menor = barras mais grossas)
+        grafico.setPrefHeight(150);
+        grafico.setMinHeight(0);
+        VBox.setVgrow(grafico, Priority.ALWAYS);
+
+        XYChart.Series<String, Number> serie = new XYChart.Series<>();
+        grafico.getData().add(serie);
 
         TextField txtValor = new TextField();
-        txtValor.setPromptText("Valor (ex.: 200)");
-        txtValor.setMaxWidth(240);
+        txtValor.setPromptText("Valor (R$)");
+        txtValor.setPrefWidth(110);
 
-        TextField txtRatings = new TextField();
-        txtRatings.setPromptText("Qtd. de tradings (ex.: 2)");
-        txtRatings.setMaxWidth(240);
+        Button btnInvestir = new Button("Investir");
+        Button btnRetirar = new Button("Retirar");
+        HBox linhaBotoes = new HBox(8, txtValor, btnInvestir, btnRetirar);
+        linhaBotoes.setAlignment(Pos.CENTER_LEFT);
 
-        Button btnInvestir = new Button("Simular Compra");
-        btnInvestir.setPrefWidth(180);
+        Label lblInvestido = new Label();
+        Label lblMensagem = new Label();
 
-        Button btnVoltar = new Button("Voltar ao Painel");
-        btnVoltar.setPrefWidth(180);
+        // Atualiza os textos e o gráfico
+        Runnable atualizarTela = () -> {
+            int i = Investimentos.indiceDe(cbAtivo.getValue());
 
-        Label lblResultado = new Label();
-        lblResultado.setWrapText(true);
-        lblResultado.setMaxWidth(360);
+            lblSaldo.setText(String.format("Saldo: R$ %.2f", pagamentos.Conta()));
+            lblPreco.setText(String.format("R$ %.2f", investimentos.getPreco(i)));
+            lblInvestido.setText(String.format("Investido em %s: R$ %.2f", cbAtivo.getValue(), investimentos.getValorInvestido(i)));
+
+            double[] historico = investimentos.getHistorico(i);
+            serie.getData().clear();
+            // Sempre 25 barras; as que ainda não têm preço ficam invisíveis
+            for (int j = 0; j < Investimentos.PONTOS; j++) {
+                boolean temPreco = j < historico.length;
+                double valor = temPreco ? historico[j] : investimentos.getPreco(i);
+                XYChart.Data<String, Number> barra = new XYChart.Data<>(String.valueOf(j + 1), valor);
+                serie.getData().add(barra);
+                barra.getNode().setStyle("-fx-bar-fill: gray;");
+                if (!temPreco) {
+                    barra.getNode().setVisible(false);
+                }
+            }
+        };
+
+        // A cada 1 segundo os preços mudam
+        Timeline relogio = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            investimentos.atualizarPrecos();
+            atualizarTela.run();
+        }));
+        relogio.setCycleCount(Timeline.INDEFINITE);
+        relogio.play();
+
+        cbAtivo.setOnAction(e -> atualizarTela.run());
 
         btnInvestir.setOnAction(e -> {
-            String moedaSelecionada = cbMoeda.getValue();
-            String textoValor = txtValor.getText().trim().replace(",", ".");
-            String textoRatings = txtRatings.getText().trim();
-
-            if (moedaSelecionada == null || textoValor.isEmpty() || textoRatings.isEmpty()) {
-                lblResultado.setText("Preencha investimento, valor e quantidade de tradings.");
-                lblResultado.setStyle("-fx-text-fill: #c62828;");
-                return;
-            }
-
             try {
-                double valor = Double.parseDouble(textoValor);
-                int qtdRatings = Integer.parseInt(textoRatings);
-
-                if (valor <= 0 || qtdRatings <= 0) {
-                    lblResultado.setText("Valor e quantidade de tradings devem ser maiores que zero.");
-                    lblResultado.setStyle("-fx-text-fill: #c62828;");
-                    return;
+                double valor = Double.parseDouble(txtValor.getText().trim().replace(",", "."));
+                if (valor <= 0) {
+                    lblMensagem.setText("Digite um valor maior que zero.");
+                } else if (valor > pagamentos.Conta()) {
+                    lblMensagem.setText("Saldo insuficiente.");
+                } else {
+                    int i = Investimentos.indiceDe(cbAtivo.getValue());
+                    pagamentos.SaqueInv(valor);
+                    investimentos.investir(i, valor);
+                    txtValor.clear();
+                    lblMensagem.setText(String.format("Investido R$ %.2f em %s.", valor, cbAtivo.getValue()));
                 }
-
-                if (valor > pagamentos.Conta()) {
-                    lblResultado.setText("Saldo insuficiente para esse valor.");
-                    lblResultado.setStyle("-fx-text-fill: #c62828;");
-                    return;
-                }
-
-                String[] moedas = Investimentos.getOpcoes();
-                int indiceMoeda = java.util.Arrays.asList(moedas).indexOf(moedaSelecionada);
-
-                pagamentos.SaqueInv(valor);
-                double montanteFinal = investimentos.CompraInvestimento(valor, qtdRatings, indiceMoeda, moedas);
-                pagamentos.DepositoInv(montanteFinal);
-
-                lblSaldo.setText("Saldo disponível: R$ " + String.format("%.2f", pagamentos.Conta()));
-                lblResultado.setText(
-                        "Operação concluída em " + moedaSelecionada + " (" + qtdRatings + " tradings). Confira os detalhes no console."
-                );
-                lblResultado.setStyle("-fx-text-fill: #2e7d32;");
             } catch (NumberFormatException ex) {
-                lblResultado.setText("Digite números válidos para valor e tradings.");
-                lblResultado.setStyle("-fx-text-fill: #c62828;");
+                lblMensagem.setText("Digite um número válido.");
             }
+            atualizarTela.run();
+        });
+
+        // O dinheiro só volta para o saldo quando clica em Retirar
+        btnRetirar.setOnAction(e -> {
+            int i = Investimentos.indiceDe(cbAtivo.getValue());
+            double valor = investimentos.retirar(i);
+            if (valor > 0) {
+                pagamentos.DepositoInv(valor);
+                lblMensagem.setText(String.format("Retirado R$ %.2f de %s.", valor, cbAtivo.getValue()));
+            } else {
+                lblMensagem.setText("Você não tem nada investido em " + cbAtivo.getValue() + ".");
+            }
+            atualizarTela.run();
         });
 
         btnVoltar.setOnAction(e -> {
+            relogio.stop();
             lblStatusAcao.setText(
-                    "Carteira de " + usuario.getUsuario()
-                            + " — Saldo: R$ " + String.format("%.2f", pagamentos.Conta())
+                    "Saldo: R$ " + String.format("%.2f", pagamentos.Conta())
+                            + " | Investido: R$ " + String.format("%.2f", investimentos.getTotalInvestido())
             );
             stage.setTitle("Painel - Projeto Investimentos FX");
             stage.setScene(cenaPrincipal);
         });
 
-        VBox layout = new VBox(
-                10,
-                lblTitulo,
-                lblSaldo,
-                cbMoeda,
-                txtValor,
-                txtRatings,
-                btnInvestir,
-                btnVoltar,
-                lblResultado
-        );
-        layout.setAlignment(Pos.CENTER);
-        layout.setPadding(new Insets(24));
+        atualizarTela.run();
 
-        return new Scene(layout, 460, 440);
+        VBox layout = new VBox(6, topo, linhaAtivo, grafico, linhaBotoes, lblInvestido, lblMensagem);
+        layout.setPadding(new Insets(10));
+
+        return new Scene(layout, LARGURA, ALTURA);
     }
 }
