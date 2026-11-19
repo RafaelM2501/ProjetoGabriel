@@ -5,7 +5,6 @@ import java.util.Random;
 public class Investimentos {
     private double Carteira1 = 0;
 
-    // Opções de investimento: nome, cotação base (R$) e variação máxima por trading (R$)
     private static final String[] OPCOES = {"Dollar", "Libra", "Petrobras (PETR4)", "Vale (VALE3)", "Itaú (ITUB4)"};
     private static final double[] COTACAO_BASE = {5.70, 7.45, 37.50, 60.20, 36.80};
     private static final double[] VARIACAO = {0.30, 0.30, 1.90, 3.00, 1.85};
@@ -50,11 +49,9 @@ public class Investimentos {
 
                 double valorAnterior = valor;
 
-                // Valor para seguir a cotação anterior
                 double proporcao = cotacao / cotacaoAnterior;
                 valor = valor * proporcao;
 
-                // Variação exibindo o lucro ou prejuízo em centavos
                 double diferenca = valor - valorAnterior;
 
                 System.out.printf(

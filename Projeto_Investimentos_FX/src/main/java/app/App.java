@@ -31,7 +31,6 @@ import java.nio.file.Path;
 
 public class App extends Application {
 
-    // Todas as telas usam o mesmo tamanho (o da tela de login)
     private static final double LARGURA = 420;
     private static final double ALTURA = 320;
 
@@ -62,7 +61,6 @@ public class App extends Application {
         Validacaologin validacao = new Validacaologin();
 
         btnEntrar.setOnAction(event -> {
-            // Ignora os espaços: "Leonel Soares" vira "LeonelSoares"
             String usuarioDigitado = txtUsuario.getText().replace(" ", "");
             String senhaDigitada = txtSenha.getText();
 
@@ -109,7 +107,6 @@ public class App extends Application {
 
                     double saldoInicial = Double.parseDouble(String.valueOf(usuarioEncontrado.getSaldo()));
                     Pagamentos pagamentos = new Pagamentos(saldoInicial);
-                    // Cada login tem sua própria carteira de investimentos
                     Investimentos investimentos = new Investimentos();
 
                     Scene cenaPrincipal = criarCenaPrincipal(
@@ -230,7 +227,6 @@ public class App extends Application {
         Label lblSaldo = new Label(String.format("Saldo: R$ %.2f", pagamentos.Conta()));
         lblSaldo.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
-        // Parte de depósito
         Label lblDepositar = new Label("Depositar");
         lblDepositar.setStyle("-fx-font-weight: bold;");
         TextField txtDeposito = new TextField();
@@ -239,7 +235,6 @@ public class App extends Application {
         Button btnDepositar = new Button("Depositar");
         HBox linhaDeposito = new HBox(8, txtDeposito, btnDepositar);
 
-        // Parte de retirada
         Label lblRetirar = new Label("Retirar");
         lblRetirar.setStyle("-fx-font-weight: bold;");
         TextField txtRetirada = new TextField();
@@ -365,10 +360,8 @@ public class App extends Application {
         HBox linhaAtivo = new HBox(10, cbAtivo, lblPreco);
         linhaAtivo.setAlignment(Pos.CENTER_LEFT);
 
-        // O gráfico começa sem barras toda vez que a tela abre
         investimentos.limparHistorico();
 
-        // Gráfico de barras com os últimos 25 preços
         CategoryAxis eixoX = new CategoryAxis();
         eixoX.setTickLabelsVisible(false);
         eixoX.setTickMarkVisible(false);
@@ -380,12 +373,11 @@ public class App extends Application {
         BarChart<String, Number> grafico = new BarChart<>(eixoX, eixoY);
         grafico.setAnimated(false);
         grafico.setLegendVisible(false);
-        // Sem linhas de grade, só as barras
         grafico.setHorizontalGridLinesVisible(false);
         grafico.setVerticalGridLinesVisible(false);
         grafico.setAlternativeRowFillVisible(false);
         grafico.setBarGap(0);
-        grafico.setCategoryGap(7); // espaço entre as barras (menor = barras mais grossas)
+        grafico.setCategoryGap(7);
         grafico.setPrefHeight(150);
         grafico.setMinHeight(0);
         VBox.setVgrow(grafico, Priority.ALWAYS);
@@ -405,7 +397,6 @@ public class App extends Application {
         Label lblInvestido = new Label();
         Label lblMensagem = new Label();
 
-        // Atualiza os textos e o gráfico
         Runnable atualizarTela = () -> {
             int i = Investimentos.indiceDe(cbAtivo.getValue());
 
@@ -415,7 +406,6 @@ public class App extends Application {
 
             double[] historico = investimentos.getHistorico(i);
             serie.getData().clear();
-            // Sempre 25 barras; as que ainda não têm preço ficam invisíveis
             for (int j = 0; j < Investimentos.PONTOS; j++) {
                 boolean temPreco = j < historico.length;
                 double valor = temPreco ? historico[j] : investimentos.getPreco(i);
@@ -428,7 +418,6 @@ public class App extends Application {
             }
         };
 
-        // A cada 1 segundo os preços mudam
         Timeline relogio = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
             investimentos.atualizarPrecos();
             atualizarTela.run();
@@ -458,7 +447,6 @@ public class App extends Application {
             atualizarTela.run();
         });
 
-        // O dinheiro só volta para o saldo quando clica em Retirar
         btnRetirar.setOnAction(e -> {
             int i = Investimentos.indiceDe(cbAtivo.getValue());
             double valor = investimentos.retirar(i);

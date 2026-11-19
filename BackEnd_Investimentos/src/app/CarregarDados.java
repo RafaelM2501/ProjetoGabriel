@@ -17,7 +17,6 @@ class UsuarioJson{
     private String nome;
     private int saldo;
 
-    // Getters para puxar os dados
 
     public int getId(){
         return id;

@@ -14,7 +14,6 @@ public class Teste_Site {
         String NovaSenha;
         String NovoUsuario;
 
-        //Criação do json utilizando o Gson + leitura de dados
 
 
         Gson gson = new Gson();
@@ -28,11 +27,9 @@ public class Teste_Site {
             return;
         }
 
-        //Pegando o primeiro usuario(Rafaelmozzer) e senha(1)
 
         UsuarioJson usuarioAtual = dadosCarregados.getUsuarios().get(0);
 
-        //Passando os dados do Json para as classes
 
         Login NovoLogin = new Login(usuarioAtual.getUsuario(), usuarioAtual.getSenha());
         Validacaologin validacao = new Validacaologin();
@@ -41,7 +38,6 @@ public class Teste_Site {
         Pagamentos Conta = new Pagamentos(usuarioAtual.getSaldo());
         Scanner teclado = new Scanner(System.in);
 
-        //Tela de Login da Plataforma
         do {
 
             System.out.printf("\n(1) - para login\n");
@@ -61,11 +57,10 @@ public class Teste_Site {
 
                 UsuarioJson usuarioLogado = null;
 
-                //Procurando na lista Json que tem a senha e usuario
 
                 for (UsuarioJson u : dadosCarregados.getUsuarios()) {
                     if (u.getUsuario().equals(usuario) && u.getSenha().equals(senha)) {
-                        usuarioLogado = u; // usuário correto
+                        usuarioLogado = u;
                         break;
                     }
                 }

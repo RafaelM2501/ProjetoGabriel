@@ -8,17 +8,14 @@ public class Investimentos {
 
     private double[] precos = {5.70, 7.45, 37.50, 60.20, 36.80};
 
-    // Últimos 25 preços de cada ativo (usado no gráfico)
     public static final int PONTOS = 25;
     private double[][] historico = new double[OPCOES.length][PONTOS];
-    private int quantidade = 0; // quantos preços já estão no histórico
+    private int quantidade = 0;
 
-    // Quanto o usuário tem em cada ativo (sobe e desce junto com o preço)
     private double[] carteira = new double[OPCOES.length];
 
     private Random gerador = new Random();
 
-    // Apaga o histórico para o gráfico começar sem barras
     public void limparHistorico() {
         quantidade = 0;
     }
@@ -36,7 +33,6 @@ public class Investimentos {
         return 0;
     }
 
-    // Muda os preços entre -1% e +1%
     public void atualizarPrecos() {
         for (int i = 0; i < OPCOES.length; i++) {
             double variacao = (gerador.nextDouble() * 0.02) - 0.01;
@@ -44,10 +40,8 @@ public class Investimentos {
             carteira[i] = carteira[i] * (1 + variacao);
 
             if (quantidade < PONTOS) {
-                // Ainda tem espaço: coloca o preço novo na próxima posição
                 historico[i][quantidade] = precos[i];
             } else {
-                // Cheio: anda o histórico uma posição e coloca o preço novo no final
                 for (int j = 0; j < PONTOS - 1; j++) {
                     historico[i][j] = historico[i][j + 1];
                 }
@@ -63,7 +57,6 @@ public class Investimentos {
         return precos[i];
     }
 
-    // Devolve só os preços que já existem
     public double[] getHistorico(int i) {
         return java.util.Arrays.copyOf(historico[i], quantidade);
     }
@@ -84,7 +77,6 @@ public class Investimentos {
         carteira[i] += valor;
     }
 
-    // Retira tudo que está no ativo e devolve o valor
     public double retirar(int i) {
         double valor = carteira[i];
         carteira[i] = 0;
